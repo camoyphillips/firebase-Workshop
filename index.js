@@ -34,7 +34,7 @@
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
 
-  // Initialize a database connection
+// Initialize a database connection
 const database = getDatabase();
 
 // Fetch messages
@@ -43,6 +43,55 @@ const messages = ref(database, "/messages");
 onValue(
     messages,
     (snapshot) => {
-        console.log(messages);
+        
+        // Create a reference to the messages ul
+        let ul = document.getElementById("messages");
+
+        ul.replaceChildren();
+
+        // Loop through the messaegs children
+        snapshot.forEach((childSnapshot) => {
+
+            // Fetch the child id and data
+            const childKey = childSnapshot.key;
+            const childData = childSnapshot.val();
+
+            console.log(childKey);
+            console.log(childData);
+
+            // Add message data to ul
+            const text = document.createTextNode(
+                childData.message + " ~ " + childData.name
+            );
+
+            const li = document.createElement("li");
+
+            li.appendChild(text);
+            ul.appendChild(li);
+
+            // Append using innerHtml
+            // const nextMessage = "<li>" + childData.message + " ~ " + childData.name + "</li>";
+
+        });
+},{
+        onlyOnce: false
     }
 )
+
+const add = document.getElementById("add");
+
+add.addEventListener("click", function(e){
+
+    const name = document.getElementById("name");
+    const message = document.getElementById("message");
+
+    const newMessage = push(messages);
+
+    set(newMessage, {
+        name: name.value,
+        message: message.value,
+        createdAt: serverTimestamp(),
+    });
+
+});
+         
